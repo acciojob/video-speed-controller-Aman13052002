@@ -1,35 +1,101 @@
-//Your code goes here
+const video =
+  document.querySelector('.player__video');
 
-const speed = document.querySelector('.speed');
-const bar = document.querySelector('.speed-bar');
-const video = document.querySelector('.flex');
+const toggle =
+  document.querySelector('.toggle');
 
-function handleUpdate(e) {
+const progress =
+  document.querySelector('.progress');
 
-  const y = e.pageY - speed.offsetTop;
+const progressFilled =
+  document.querySelector('.progress__filled');
 
-  const percent = y / speed.offsetHeight;
+const ranges =
+  document.querySelectorAll('.player__slider');
 
-  const min = 0.4;
-  const max = 4;
+const skipButtons =
+  document.querySelectorAll('[data-skip]');
 
-  const playbackRate =
-    percent * (max - min) + min;
 
-  const height =
-    Math.round(percent * 100) + '%';
+// Play/Pause
+function togglePlay() {
 
-  // Update bar height
-  bar.style.height = height;
-
-  // Update text
-  bar.textContent =
-    playbackRate.toFixed(2) + '×';
-
-  // Update video speed
-  video.playbackRate = playbackRate;
+  if (video.paused) {
+    video.play();
+  } else {
+    video.pause();
+  }
 }
 
-// Similar to your example
-speed.addEventListener('mousemove', handleUpdate);
-speed.addEventListener('change', handleUpdate);
+// Update button icon
+function updateButton() {
+
+  toggle.textContent =
+    video.paused ? '►' : '❚ ❚';
+}
+
+// Progress bar
+function handleProgress() {
+
+  const percent =
+    (video.currentTime / video.duration) * 100;
+
+  progressFilled.style.flexBasis =
+    `${percent}%`;
+}
+
+// Skip/Rewind
+function skip() {
+
+  video.currentTime +=
+    parseFloat(this.dataset.skip);
+}
+
+// Volume & Speed
+function handleRangeUpdate() {
+
+  video[this.name] = this.value;
+}
+
+// Scrub progress
+function scrub(e) {
+
+  const scrubTime =
+    (e.offsetX / progress.offsetWidth) *
+    video.duration;
+
+  video.currentTime = scrubTime;
+}
+
+
+// Events
+toggle.addEventListener('click', togglePlay);
+
+video.addEventListener('play', updateButton);
+
+video.addEventListener('pause', updateButton);
+
+video.addEventListener(
+  'timeupdate',
+  handleProgress
+);
+
+progress.addEventListener('click', scrub);
+
+skipButtons.forEach(button =>
+  button.addEventListener('click', skip)
+);
+
+ranges.forEach(range =>
+  range.addEventListener(
+    'change',
+    handleRangeUpdate
+  )
+);
+
+ranges.forEach(range =>
+  range.addEventListener(
+    'mousemove',
+    handleRangeUpdate
+  )
+);
